@@ -9,6 +9,7 @@ package com.salesforce.emp.connector.example;
 import static com.salesforce.emp.connector.LoginHelper.login;
 
 import java.net.URL;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
@@ -48,7 +49,28 @@ public class LoginExample {
 
         BayeuxParameters params = tokenProvider.login();
 
-        Consumer<Map<String, Object>> consumer = event -> System.out.println(String.format("Received:\n%s", JSON.toString(event)));
+        // Program args: username password topic replayId
+        // replayId:
+        //  -1:  Tip of the queue (no past events)
+        //  -2:  Plays past events.  Events are stored in SF for 24 hours
+        //  <actualId>: play from this id forward (non-inclusive)
+        // example: sfptdev.vicuna.lex@patrontechnology.com <password or password+token> /event/DebugEvent__e -1
+
+        //Consumer<Map<String, Object>> consumer = event -> System.out.println(String.format("Received:\n%s", JSON.toString(event)));
+        Consumer<Map<String, Object>> consumer = event -> {
+            HashMap<String, Object> hash = (HashMap)event;
+            HashMap<String, Object> evt = (HashMap)hash.get("event");
+            Long replayId = (Long)evt.get("replayId");
+
+            HashMap<String, Object> payload = (HashMap)hash.get("payload");
+
+            System.out.println(String.format("==================== \n== Received: %s \n====================", replayId));
+            System.out.println(String.format("\t Message: %s ", payload.get("Message__c")));
+            System.out.println(String.format("\t Timestamp: %s ", payload.get("Timestamp__c")));
+            System.out.println(String.format("\t Type: %s ", payload.get("Type__c")));
+            System.out.println(String.format("\t Detail: %s ", payload.get("Detail__c")));
+            System.out.println();
+        };
 
         EmpConnector connector = new EmpConnector(params);
 
