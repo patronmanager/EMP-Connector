@@ -33,7 +33,7 @@ public class LoginExample {
             System.exit(1);
         }
         long replayFrom = EmpConnector.REPLAY_FROM_EARLIEST;
-        String namespace = (argv.length == 5) ? argv[4] : "";
+        String namespace = (argv.length == 5) ? argv[4] + "__" : "";
 
         if (argv.length == 4) {
             replayFrom = Long.parseLong(argv[3]);
