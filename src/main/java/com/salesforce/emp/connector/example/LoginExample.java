@@ -28,11 +28,13 @@ import com.salesforce.emp.connector.TopicSubscription;
  */
 public class LoginExample {
     public static void main(String[] argv) throws Exception {
-        if (argv.length < 3 || argv.length > 4) {
-            System.err.println("Usage: LoginExample username password topic [replayFrom]");
+        if (argv.length < 3 || argv.length > 5) {
+            System.err.println("Usage: LoginExample username password topic [replayFrom] [namespace]");
             System.exit(1);
         }
         long replayFrom = EmpConnector.REPLAY_FROM_EARLIEST;
+        String namespace = (argv.length == 5) ? argv[4] : "";
+
         if (argv.length == 4) {
             replayFrom = Long.parseLong(argv[3]);
         }
@@ -57,6 +59,8 @@ public class LoginExample {
         // example: sfptdev.vicuna.lex@patrontechnology.com <password or password+token> /event/DebugEvent__e -1
 
         //Consumer<Map<String, Object>> consumer = event -> System.out.println(String.format("Received:\n%s", JSON.toString(event)));
+
+        System.out.println("===== Namespace: " + namespace);
         Consumer<Map<String, Object>> consumer = event -> {
             HashMap<String, Object> hash = (HashMap)event;
             HashMap<String, Object> evt = (HashMap)hash.get("event");
@@ -65,10 +69,10 @@ public class LoginExample {
             HashMap<String, Object> payload = (HashMap)hash.get("payload");
 
             System.out.println(String.format("==================== \n== Received: %s \n====================", replayId));
-            System.out.println(String.format("\t Message: %s ", payload.get("Message__c")));
-            System.out.println(String.format("\t Timestamp: %s ", payload.get("Timestamp__c")));
-            System.out.println(String.format("\t Type: %s ", payload.get("Type__c")));
-            System.out.println(String.format("\t Detail: %s ", payload.get("Detail__c")));
+            System.out.println(String.format("\t Message: %s ", payload.get(namespace + "Message__c")));
+            System.out.println(String.format("\t Detail: %s ", payload.get(namespace + "Detail__c")));
+            System.out.println(String.format("\t Timestamp: %s ", payload.get(namespace + "Timestamp__c")));
+            System.out.println(String.format("\t Type: %s ", payload.get(namespace + "Type__c")));
             System.out.println();
         };
 
